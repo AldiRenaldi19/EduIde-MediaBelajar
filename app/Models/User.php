@@ -42,14 +42,11 @@ class User extends Authenticatable
     /**
      * Casting atribut ke tipe data tertentu.
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_admin' => 'boolean', // Memastikan is_admin selalu dibaca sebagai true/false
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_admin' => 'boolean', // Memastikan is_admin selalu dibaca sebagai true/false
+    ];
 
     /**
      * Relasi Many-to-Many ke Model Course.

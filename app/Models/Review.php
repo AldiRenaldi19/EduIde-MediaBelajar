@@ -10,13 +10,13 @@ class Review extends Model
     use HasFactory;
 
     /**
-     * Atribut yang dapat diisi secara massal.
-     *
-     * @var array<int, string>
+     * Mass Assignment Protection
+     * Menentukan kolom mana saja yang boleh diisi secara massal.
      */
     protected $fillable = [
         'name',
         'job',
         'message',
+        'rating',
     ];
 }

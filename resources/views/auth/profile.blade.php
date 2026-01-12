@@ -106,10 +106,19 @@
 
         <div class="space-y-3">
             <div class="grid grid-cols-2 gap-3">
-                <a href="{{ route('courses.my') }}" class="py-4 bg-indigo-600 hover:bg-indigo-500 text-white text-center rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 active:scale-95">
+                <a href="{{ route('profile.edit') }}" class="py-4 bg-indigo-600 hover:bg-indigo-500 text-white text-center rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 active:scale-95">
+                    ✏️ Edit Profil
+                </a>
+                <a href="{{ route('password.change') }}" class="py-4 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 text-center rounded-2xl text-[10px] font-black uppercase tracking-widest border border-amber-600/30 transition-all active:scale-95">
+                    🔒 Ubah Password
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{{ route('user.enrolled') }}" class="py-4 bg-white/5 hover:bg-white/10 text-white text-center rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95">
                     Materi Saya
                 </a>
-                <a href="{{ route('courses.index') }}" class="py-4 bg-white/5 hover:bg-white/10 text-white text-center rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95">
+                <a href="{{ route('user.dashboard') }}" class="py-4 bg-white/5 hover:bg-white/10 text-white text-center rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95">
                     Katalog
                 </a>
             </div>
@@ -129,7 +138,7 @@
         </div>
 
         <div class="mt-10 text-center">
-            <a href="{{ route('courses.index') }}" class="text-[10px] text-gray-600 hover:text-indigo-400 transition-colors uppercase font-bold tracking-[0.3em]">
+            <a href="{{ route('user.dashboard') }}" class="text-[10px] text-gray-600 hover:text-indigo-400 transition-colors uppercase font-bold tracking-[0.3em]">
                 ← Back to Dashboard
             </a>
         </div>
