@@ -222,5 +222,71 @@
             submitBtn.innerHTML = 'Sedang Memproses...';
         }
     </script>
+    <script>
+        // Intercept module upload forms to show progress using XHR
+        document.addEventListener('DOMContentLoaded', function () {
+            function handleForm(form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const submitBtn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+                    const fileInput = form.querySelector('input[type="file"]');
+
+                    // create progress bar
+                    let progress = form.querySelector('.upload-progress');
+                    if (!progress) {
+                        progress = document.createElement('div');
+                        progress.className = 'upload-progress mt-2 w-full bg-white/5 rounded';
+                        progress.innerHTML = '<div class="h-2 bg-indigo-600 rounded" style="width:0%"></div>';
+                        form.appendChild(progress);
+                    }
+
+                    const bar = progress.firstElementChild;
+
+                    const action = form.getAttribute('action');
+                    const method = form.getAttribute('method') || 'POST';
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open(method, action);
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+                    const token = document.querySelector('input[name="_token"]');
+                    if (token) xhr.setRequestHeader('X-CSRF-TOKEN', token.value);
+
+                    xhr.upload.addEventListener('progress', function (ev) {
+                        if (ev.lengthComputable) {
+                            const pct = Math.round((ev.loaded / ev.total) * 100);
+                            bar.style.width = pct + '%';
+                        }
+                    });
+
+                    xhr.addEventListener('load', function () {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            // simple success: reload to show new content
+                            window.location.reload();
+                        } else {
+                            alert('Upload gagal. Periksa pesan error.');
+                            submitBtn.disabled = false;
+                        }
+                    });
+
+                    xhr.addEventListener('error', function () {
+                        alert('Terjadi kesalahan saat mengunggah.');
+                        submitBtn.disabled = false;
+                    });
+
+                    const fd = new FormData(form);
+
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Mengunggah...';
+
+                    xhr.send(fd);
+                });
+            }
+
+            // Attach to all module forms under this page
+            document.querySelectorAll('form[action*="modules"]').forEach(handleForm);
+        });
+    </script>
 </body>
 </html>
