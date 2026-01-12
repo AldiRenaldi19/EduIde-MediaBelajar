@@ -113,6 +113,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Module thumbnail update
     Route::post('/modules/{id}/thumbnail', [\App\Http\Controllers\ModuleController::class, 'updateThumbnail'])->name('modules.thumbnail.update');
+    // Module content attach/upload
+    Route::post('/modules/{id}/content', [\App\Http\Controllers\ModuleController::class, 'updateContent'])->name('modules.content.update');
 
     // User management
     Route::get('/users', [AdminController::class, 'users'])->name('users.index');

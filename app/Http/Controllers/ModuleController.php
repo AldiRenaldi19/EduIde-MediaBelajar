@@ -90,6 +90,65 @@ class ModuleController extends Controller
     }
 
     /**
+     * Admin: attach or upload module content (video/document or external URL)
+     * POST /admin/modules/{id}/content
+     */
+    public function updateContent(Request $request, $id)
+    {
+        $module = Module::findOrFail($id);
+
+        if (!Auth::check() || !Auth::user()->is_admin) {
+            return abort(403);
+        }
+
+        $request->validate([
+            'content_option' => 'required|in:file,url',
+            'file' => 'nullable|file|max:51200', // up to 50MB
+            'url' => 'nullable|url',
+        ]);
+
+        try {
+            if ($request->content_option === 'file' && $request->hasFile('file')) {
+                $file = $request->file('file');
+                $mime = $file->getMimeType();
+
+                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+                $upload = $cloudinary->uploadApi()->upload($file->getRealPath(), [
+                    'folder' => 'eduide/modules/content',
+                    'resource_type' => 'auto',
+                ]);
+
+                $url = $upload['secure_url'] ?? $upload['url'] ?? null;
+                $type = str_starts_with($mime, 'video/') ? 'video' : 'document';
+
+                $module->content_type = $type;
+                $module->content_url = $url;
+                $module->attachment_mime = $mime;
+                $module->save();
+
+                return back()->with('success', 'Konten modul berhasil diunggah.');
+            }
+
+            if ($request->content_option === 'url' && $request->filled('url')) {
+                $url = $request->url;
+                $type = str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be') ? 'video' : 'document';
+
+                $module->content_type = $type;
+                $module->content_url = $url;
+                $module->attachment_mime = null;
+                $module->save();
+
+                return back()->with('success', 'Konten modul berhasil ditautkan.');
+            }
+
+            return back()->withErrors(['file' => 'Tidak ada file atau URL yang diberikan.']);
+        } catch (\Exception $e) {
+            Log::error('Module content upload failed', ['module_id' => $module->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['file' => 'GAGAL UPLOAD: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
      * Menampilkan daftar modul suatu course
      * Path: /user/{course_slug}/modules
      */

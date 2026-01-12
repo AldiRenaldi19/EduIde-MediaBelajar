@@ -170,6 +170,23 @@
                                     @if($errors->has('thumbnail'))
                                         <div class="text-rose-400 text-xs mt-2">{{ $errors->first('thumbnail') }}</div>
                                     @endif
+
+                                    {{-- Content attach/upload form --}}
+                                    <form action="{{ route('admin.modules.content.update', $mod->id) }}" method="POST" enctype="multipart/form-data" class="mt-3">
+                                        @csrf
+                                        <div class="flex items-center gap-2">
+                                            <select name="content_option" class="px-3 py-2 rounded bg-white/5 text-sm">
+                                                <option value="file">Unggah File</option>
+                                                <option value="url">Tautkan URL</option>
+                                            </select>
+                                            <input type="file" name="file" accept="video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="text-sm file:rounded file:px-3 file:py-2 file:bg-green-600 file:text-white">
+                                            <input type="url" name="url" placeholder="https://" class="px-3 py-2 rounded bg-white/5 text-sm w-64">
+                                            <button class="px-3 py-2 bg-green-600 text-white rounded text-xs font-bold">Simpan Konten</button>
+                                        </div>
+                                        @if($mod->content_url)
+                                            <div class="mt-2 text-xs text-gray-300">Konten saat ini: <a href="{{ $mod->content_url }}" class="text-indigo-400 underline" target="_blank">Lihat</a> ({{ $mod->content_type }})</div>
+                                        @endif
+                                    </form>
                                 </div>
                             </div>
                         @endforeach
