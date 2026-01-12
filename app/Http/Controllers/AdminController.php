@@ -280,6 +280,7 @@ class AdminController extends Controller
     {
         $query = AuditLog::with('admin');
 
+        // Full text search across action, target_type, details and admin name/email
         if ($request->filled('search')) {
             $q = $request->search;
             $query->where(function ($sub) use ($q) {
@@ -291,8 +292,25 @@ class AdminController extends Controller
             });
         }
 
+        // Filter by specific action (exact match)
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        // Date range filters (YYYY-MM-DD)
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Provide a list of actions for the filter dropdown
+        $actions = AuditLog::select('action')->distinct()->orderBy('action')->pluck('action');
+
         $logs = $query->latest()->paginate(20)->withQueryString();
 
-        return view('admin.audit-logs', compact('logs'));
+        return view('admin.audit-logs', compact('logs', 'actions'));
     }
 }

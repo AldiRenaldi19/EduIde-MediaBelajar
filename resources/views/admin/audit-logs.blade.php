@@ -14,9 +14,21 @@
       <a href="{{ route('admin.dashboard') }}" class="text-sm text-gray-300">Back</a>
     </div>
 
-    <form method="GET" class="mb-4">
+    <form method="GET" class="mb-4 flex items-center gap-2">
       <input type="text" name="search" value="{{ request('search') }}" placeholder="Search action, admin, target..." class="px-4 py-2 rounded w-96 bg-white/5" />
-      <button class="px-4 py-2 ml-2 rounded bg-indigo-600">Search</button>
+
+      <select name="action" class="px-3 py-2 rounded bg-white/5">
+        <option value="">All actions</option>
+        @foreach(($actions ?? []) as $act)
+          <option value="{{ $act }}" @if(request('action')==$act) selected @endif>{{ $act }}</option>
+        @endforeach
+      </select>
+
+      <input type="date" name="date_from" value="{{ request('date_from') }}" class="px-3 py-2 rounded bg-white/5" />
+      <input type="date" name="date_to" value="{{ request('date_to') }}" class="px-3 py-2 rounded bg-white/5" />
+
+      <button class="px-4 py-2 ml-2 rounded bg-indigo-600">Filter</button>
+      <a href="{{ route('admin.audit.logs') }}" class="px-4 py-2 ml-2 rounded bg-white/5 text-sm">Reset</a>
     </form>
 
     <div class="glass rounded overflow-hidden">
