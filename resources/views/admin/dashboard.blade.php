@@ -56,9 +56,13 @@
             <h2 class="text-xs font-black uppercase tracking-[0.3em] text-indigo-400 flex items-center gap-3">
                 <span class="w-8 h-[1px] bg-indigo-500/30"></span> Manajemen Kursus
             </h2>
-            <a href="{{ route('admin.courses.create') }}" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 active:scale-95">
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.users.index') }}" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all text-gray-300">Users</a>
+                <a href="{{ route('admin.courses.export') }}" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all text-gray-300">Export CSV</a>
+                <a href="{{ route('admin.courses.create') }}" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 active:scale-95">
                 + Kursus Baru
             </a>
+            </div>
         </div>
 
         <div class="glass-card rounded-[40px] overflow-hidden border border-white/5 shadow-2xl mb-16">
@@ -113,6 +117,12 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         </button>
                                     </form>
+                                    <form action="{{ route('admin.courses.toggle', $course->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="p-2.5 bg-white/5 hover:bg-white/10 text-gray-400 rounded-xl transition-all">
+                                            {{ $course->is_published ? 'Unpublish' : 'Publish' }}
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -121,6 +131,9 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+            <div class="p-6 border-t border-white/5">
+                {{ $courses->links() }}
             </div>
         </div>
 
@@ -172,6 +185,9 @@
                         @endforelse
                     </tbody>
                 </table>
+            <div class="p-6 border-t border-white/5">
+                {{ $reviews->links() }}
+            </div>
             </div>
         </div>
         

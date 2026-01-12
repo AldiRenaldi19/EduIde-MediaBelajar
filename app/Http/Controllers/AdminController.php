@@ -6,6 +6,7 @@ use App\Models\Review;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Category;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 // Import SDK Native Cloudinary
@@ -27,7 +28,7 @@ class AdminController extends Controller
         ]);
     }
 
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $stats = [
             ['label' => 'Total Siswa', 'value' => User::where('is_admin', false)->count(), 'color' => 'indigo'],
@@ -35,15 +36,25 @@ class AdminController extends Controller
             ['label' => 'Kursus Aktif', 'value' => Course::count(), 'color' => 'purple'],
         ];
 
-        $reviews = Review::latest()->get();
-        $courses = Course::with('category')->withCount('students')->latest()->get();
+        $reviews = Review::latest()->paginate(10)->withQueryString();
+        $courses = Course::with('category')->withCount('students')->latest()->paginate(12)->withQueryString();
 
         return view('admin.dashboard', compact('stats', 'reviews', 'courses'));
     }
 
     public function deleteReview($id)
     {
-        Review::findOrFail($id)->delete();
+        $review = Review::findOrFail($id);
+        $review->delete();
+
+        AuditLog::create([
+            'admin_id' => auth()->id(),
+            'action' => 'delete_review',
+            'target_type' => 'review',
+            'target_id' => $id,
+            'details' => json_encode(['name' => $review->name]),
+        ]);
+
         return back()->with('success', 'Ulasan telah berhasil dihapus.');
     }
 
@@ -74,7 +85,7 @@ class AdminController extends Controller
                 $thumbnailUrl = $upload['secure_url'];
             }
 
-            Course::create([
+            $course = Course::create([
                 'author_id'    => auth()->id(),
                 'category_id'  => $request->category_id,
                 'title'        => $request->title,
@@ -84,6 +95,14 @@ class AdminController extends Controller
                 'level'        => $request->level,
                 'thumbnail'    => $thumbnailUrl,
                 'is_published' => $request->has('is_published'),
+            ]);
+
+            AuditLog::create([
+                'admin_id' => auth()->id(),
+                'action' => 'create_course',
+                'target_type' => 'course',
+                'target_id' => $course->id,
+                'details' => json_encode(['title' => $course->title]),
             ]);
 
             return redirect()->route('admin.dashboard')->with('success', 'Kursus baru berhasil diterbitkan!');
@@ -132,6 +151,15 @@ class AdminController extends Controller
             }
 
             $course->update($data);
+
+            AuditLog::create([
+                'admin_id' => auth()->id(),
+                'action' => 'update_course',
+                'target_type' => 'course',
+                'target_id' => $course->id,
+                'details' => json_encode(['title' => $course->title]),
+            ]);
+
             return redirect()->route('admin.dashboard')->with('success', 'Data kursus berhasil diperbarui!');
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['thumbnail' => 'Gagal Update: ' . $e->getMessage()]);
@@ -142,6 +170,117 @@ class AdminController extends Controller
     {
         $course = Course::findOrFail($id);
         $course->delete();
+
+        AuditLog::create([
+            'admin_id' => auth()->id(),
+            'action' => 'delete_course',
+            'target_type' => 'course',
+            'target_id' => $course->id,
+            'details' => json_encode(['title' => $course->title]),
+        ]);
+
         return back()->with('success', 'Kursus telah dihapus.');
+    }
+
+    // Toggle publish/unpublish
+    public function togglePublish($id)
+    {
+        $course = Course::findOrFail($id);
+        $course->is_published = !$course->is_published;
+        $course->save();
+
+        AuditLog::create([
+            'admin_id' => auth()->id(),
+            'action' => $course->is_published ? 'publish_course' : 'unpublish_course',
+            'target_type' => 'course',
+            'target_id' => $course->id,
+            'details' => json_encode(['title' => $course->title, 'is_published' => $course->is_published]),
+        ]);
+
+        return back()->with('success', 'Status publikasi kursus telah diperbarui.');
+    }
+
+    // Users list
+    public function users(Request $request)
+    {
+        $query = User::query();
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')->orWhere('email', 'like', '%' . $request->search . '%');
+        }
+
+        $users = $query->latest()->paginate(15)->withQueryString();
+        return view('admin.users', compact('users'));
+    }
+
+    // Toggle admin role
+    public function toggleUserAdmin($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_admin = !$user->is_admin;
+        $user->save();
+
+        AuditLog::create([
+            'admin_id' => auth()->id(),
+            'action' => $user->is_admin ? 'promote_user' : 'demote_user',
+            'target_type' => 'user',
+            'target_id' => $user->id,
+            'details' => json_encode(['email' => $user->email, 'is_admin' => $user->is_admin]),
+        ]);
+
+        return back()->with('success', 'Status admin user telah diperbarui.');
+    }
+
+    // Reviews listing for moderation (separate view is optional)
+    public function reviews(Request $request)
+    {
+        $query = Review::query();
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%')->orWhere('message', 'like', '%' . $request->search . '%');
+        }
+
+        $reviews = $query->latest()->paginate(10)->withQueryString();
+        return view('admin.dashboard', compact('reviews'));
+    }
+
+    // Export courses CSV
+    public function exportCourses()
+    {
+        $filename = 'courses-export-' . date('YmdHis') . '.csv';
+        $columns = ['id', 'title', 'slug', 'category', 'author', 'price', 'is_published', 'created_at'];
+
+        $callback = function () use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            Course::with('category', 'author')->chunk(200, function ($courses) use ($file) {
+                foreach ($courses as $c) {
+                    fputcsv($file, [
+                        $c->id,
+                        $c->title,
+                        $c->slug,
+                        $c->category->name ?? '',
+                        $c->author->name ?? '',
+                        $c->price,
+                        $c->is_published ? '1' : '0',
+                        $c->created_at->toDateTimeString(),
+                    ]);
+                }
+            });
+
+            fclose($file);
+        };
+
+        AuditLog::create([
+            'admin_id' => auth()->id(),
+            'action' => 'export_courses_csv',
+            'target_type' => 'course_export',
+            'target_id' => null,
+            'details' => json_encode(['filename' => $filename]),
+        ]);
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ]);
     }
 }
