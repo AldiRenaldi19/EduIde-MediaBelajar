@@ -151,6 +151,31 @@
                     </a>
                 </div>
             </form>
+
+            {{-- Module Thumbnails Management (only when editing an existing course) --}}
+            @if(isset($course) && $course->modules->isNotEmpty())
+                <div class="mt-12">
+                    <h2 class="text-sm font-bold text-gray-200 mb-4">Gambar Modul</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($course->modules as $mod)
+                            <div class="p-4 bg-white/[0.02] rounded-2xl border border-white/5 flex items-center gap-4">
+                                <img src="{{ $mod->thumbnail ?? 'https://placehold.co/300x200/1a1a2e/6366f1?text=No+Image' }}" class="w-24 h-16 object-cover rounded-md border border-white/5" onerror="this.src='https://placehold.co/300x200/1a1a2e/6366f1?text=Error'">
+                                <div class="flex-1">
+                                    <div class="text-xs font-bold text-gray-400">{{ $mod->title }}</div>
+                                    <form action="{{ route('admin.modules.thumbnail.update', $mod->id) }}" method="POST" enctype="multipart/form-data" class="mt-2 flex items-center gap-2">
+                                        @csrf
+                                        <input type="file" name="thumbnail" accept="image/*" class="text-sm file:rounded file:px-3 file:py-2 file:bg-indigo-600 file:text-white" required>
+                                        <button class="px-3 py-2 bg-indigo-600 text-white rounded text-xs font-bold">Unggah</button>
+                                    </form>
+                                    @if($errors->has('thumbnail'))
+                                        <div class="text-rose-400 text-xs mt-2">{{ $errors->first('thumbnail') }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
