@@ -179,7 +179,70 @@
 
                 {{-- Module Content --}}
                 <div class="glass-card rounded-[32px] p-8 md:p-12 border border-white/10 mb-8 prose">
-                    {!! nl2br(e($module->content)) !!}
+                    @php
+                        $contentUrl = $module->content_url ?? $module->video_url ?? null;
+                        $type = $module->content_type ?? null;
+                    @endphp
+
+                    @if($contentUrl && $type === 'video')
+                        {{-- YouTube embed detection --}}
+                        @if(str_contains($contentUrl, 'youtube.com') || str_contains($contentUrl, 'youtu.be'))
+                            @php
+                                $youtubeId = null;
+                                if (preg_match('/v=([^&]+)/', $contentUrl, $m)) $youtubeId = $m[1];
+                                elseif (preg_match('/youtu\.be\/([^\?\/]+)/', $contentUrl, $m)) $youtubeId = $m[1];
+                            @endphp
+
+                            @if($youtubeId)
+                                <div class="w-full aspect-video mb-6">
+                                    <iframe class="w-full h-full rounded-lg" src="https://www.youtube.com/embed/{{ $youtubeId }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                            @else
+                                <div class="w-full mb-6">
+                                    <video controls class="w-full rounded-lg">
+                                        <source src="{{ $contentUrl }}" type="{{ $module->attachment_mime ?? 'video/mp4' }}">
+                                        Browser anda tidak mendukung pemutaran video.
+                                    </video>
+                                </div>
+                            @endif
+
+                        @else
+                            <div class="w-full mb-6">
+                                <video controls class="w-full rounded-lg">
+                                    <source src="{{ $contentUrl }}" type="{{ $module->attachment_mime ?? 'video/mp4' }}">
+                                    Browser anda tidak mendukung pemutaran video.
+                                </video>
+                            </div>
+                        @endif
+
+                        {{-- Show optional written content below the video --}}
+                        @if($module->content)
+                            <div class="mt-4">{!! nl2br(e($module->content)) !!}</div>
+                        @endif
+
+                    @elseif($contentUrl && $type === 'document')
+                        @php
+                            $isPdf = str_ends_with(strtolower($contentUrl), '.pdf') || (($module->attachment_mime ?? '') === 'application/pdf');
+                        @endphp
+
+                        @if($isPdf)
+                            <div class="w-full mb-6">
+                                <iframe src="{{ $contentUrl }}" class="w-full h-[700px] rounded-lg border" frameborder="0"></iframe>
+                            </div>
+                        @else
+                            <div class="mb-4">
+                                <a href="{{ $contentUrl }}" target="_blank" class="px-4 py-2 bg-indigo-600 text-white rounded">Buka/Unduh Lampiran</a>
+                            </div>
+                        @endif
+
+                        @if($module->content)
+                            <div class="mt-4">{!! nl2br(e($module->content)) !!}</div>
+                        @endif
+
+                    @else
+                        {{-- Fallback: plain text / HTML content --}}
+                        {!! nl2br(e($module->content)) !!}
+                    @endif
                 </div>
 
                 {{-- Navigation Buttons --}}
