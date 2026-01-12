@@ -58,6 +58,7 @@
             </h2>
             <div class="flex items-center gap-3">
                 <a href="{{ route('admin.users.index') }}" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all text-gray-300">Users</a>
+                <a href="{{ route('admin.audit.logs') }}" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all text-gray-300">Audit Logs</a>
                 <a href="{{ route('admin.courses.export') }}" class="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all text-gray-300">Export CSV</a>
                 <a href="{{ route('admin.courses.create') }}" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-600/20 active:scale-95">
                 + Kursus Baru

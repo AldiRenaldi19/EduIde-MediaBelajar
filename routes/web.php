@@ -117,4 +117,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Reviews moderation with pagination/search
     Route::get('/reviews', [AdminController::class, 'reviews'])->name('reviews.index');
+    Route::get('/audit-logs', [AdminController::class, 'auditLogs'])->name('audit.logs');
 });

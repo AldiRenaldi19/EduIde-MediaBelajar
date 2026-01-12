@@ -272,4 +272,27 @@ class AdminController extends Controller
             'Content-Disposition' => "attachment; filename=\"$filename\"",
         ]);
     }
+
+    /**
+     * Audit logs viewer for admins
+     */
+    public function auditLogs(Request $request)
+    {
+        $query = AuditLog::with('admin');
+
+        if ($request->filled('search')) {
+            $q = $request->search;
+            $query->where(function ($sub) use ($q) {
+                $sub->where('action', 'like', "%{$q}%")
+                    ->orWhere('target_type', 'like', "%{$q}%")
+                    ->orWhere('details', 'like', "%{$q}%");
+            })->orWhereHas('admin', function ($a) use ($q) {
+                $a->where('name', 'like', "%{$q}%")->orWhere('email', 'like', "%{$q}%");
+            });
+        }
+
+        $logs = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.audit-logs', compact('logs'));
+    }
 }
