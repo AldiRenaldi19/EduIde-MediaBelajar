@@ -59,10 +59,11 @@ class CourseController extends Controller
 
         // Proses upload thumbnail ke Cloudinary (Cloud Storage)
         if ($request->hasFile('thumbnail')) {
-            $upload = Cloudinary::upload($request->file('thumbnail')->getRealPath(), [
+            $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+            $upload = $cloudinary->uploadApi()->upload($request->file('thumbnail')->getRealPath(), [
                 'folder' => 'eduide/courses'
             ]);
-            $course->thumbnail = $upload->getSecurePath();
+            $course->thumbnail = $upload['secure_url'] ?? $upload['url'] ?? null;
         }
 
         $course->save();
@@ -89,10 +90,11 @@ class CourseController extends Controller
 
         // Upload thumbnail baru jika ada, jika tidak tetap gunakan yang lama
         if ($request->hasFile('thumbnail')) {
-            $upload = Cloudinary::upload($request->file('thumbnail')->getRealPath(), [
+            $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+            $upload = $cloudinary->uploadApi()->upload($request->file('thumbnail')->getRealPath(), [
                 'folder' => 'eduide/courses'
             ]);
-            $course->thumbnail = $upload->getSecurePath();
+            $course->thumbnail = $upload['secure_url'] ?? $upload['url'] ?? null;
         }
 
         $course->save();

@@ -46,10 +46,11 @@ class ProfileController extends Controller
         // Jika ada upload avatar baru
         if ($request->hasFile('avatar')) {
             try {
-                $upload = Cloudinary::upload($request->file('avatar')->getRealPath(), [
+                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+                $result = $cloudinary->uploadApi()->upload($request->file('avatar')->getRealPath(), [
                     'folder' => 'eduide/avatars'
                 ]);
-                $validated['avatar'] = $upload->getSecurePath();
+                $validated['avatar'] = $result['secure_url'] ?? $result['url'] ?? null;
             } catch (\Exception $e) {
                 return back()->withErrors(['avatar' => 'Gagal upload avatar: ' . $e->getMessage()]);
             }

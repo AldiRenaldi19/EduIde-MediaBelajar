@@ -69,10 +69,11 @@ class AdminController extends Controller
         try {
             $thumbnailUrl = null;
             if ($request->hasFile('thumbnail')) {
-                $upload = Cloudinary::upload($request->file('thumbnail')->getRealPath(), [
+                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+                $upload = $cloudinary->uploadApi()->upload($request->file('thumbnail')->getRealPath(), [
                     'folder' => 'eduide/thumbnails'
                 ]);
-                $thumbnailUrl = $upload->getSecurePath();
+                $thumbnailUrl = $upload['secure_url'] ?? $upload['url'] ?? null;
             }
 
             $course = Course::create([
@@ -133,10 +134,11 @@ class AdminController extends Controller
 
         try {
             if ($request->hasFile('thumbnail')) {
-                $upload = Cloudinary::upload($request->file('thumbnail')->getRealPath(), [
+                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+                $upload = $cloudinary->uploadApi()->upload($request->file('thumbnail')->getRealPath(), [
                     'folder' => 'eduide/thumbnails'
                 ]);
-                $data['thumbnail'] = $upload->getSecurePath();
+                $data['thumbnail'] = $upload['secure_url'] ?? $upload['url'] ?? null;
             }
 
             $course->update($data);
