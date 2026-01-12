@@ -10,22 +10,13 @@ use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 // Import SDK Native Cloudinary
-use Cloudinary\Configuration\Configuration;
-use Cloudinary\Api\Upload\UploadApi;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class AdminController extends Controller
 {
     public function __construct()
     {
-        // Initialize Cloudinary configuration from env to avoid hard-coded secrets
-        Configuration::instance([
-            'cloud' => [
-                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-                'api_key'    => env('CLOUDINARY_API_KEY'),
-                'api_secret' => env('CLOUDINARY_API_SECRET'),
-            ],
-            'url' => ['secure' => true]
-        ]);
+        // Cloudinary configuration is loaded from config/cloudinary.php and env.
     }
 
     public function dashboard(Request $request)
@@ -78,11 +69,10 @@ class AdminController extends Controller
         try {
             $thumbnailUrl = null;
             if ($request->hasFile('thumbnail')) {
-                $uploadApi = new UploadApi();
-                $upload = $uploadApi->upload($request->file('thumbnail')->getRealPath(), [
+                $upload = Cloudinary::upload($request->file('thumbnail')->getRealPath(), [
                     'folder' => 'eduide/thumbnails'
                 ]);
-                $thumbnailUrl = $upload['secure_url'];
+                $thumbnailUrl = $upload->getSecurePath();
             }
 
             $course = Course::create([
@@ -143,11 +133,10 @@ class AdminController extends Controller
 
         try {
             if ($request->hasFile('thumbnail')) {
-                $uploadApi = new UploadApi();
-                $upload = $uploadApi->upload($request->file('thumbnail')->getRealPath(), [
+                $upload = Cloudinary::upload($request->file('thumbnail')->getRealPath(), [
                     'folder' => 'eduide/thumbnails'
                 ]);
-                $data['thumbnail'] = $upload['secure_url'];
+                $data['thumbnail'] = $upload->getSecurePath();
             }
 
             $course->update($data);

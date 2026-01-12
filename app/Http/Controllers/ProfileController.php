@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
-use Cloudinary\Api\Upload\UploadApi;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProfileController extends Controller
 {
@@ -46,12 +46,10 @@ class ProfileController extends Controller
         // Jika ada upload avatar baru
         if ($request->hasFile('avatar')) {
             try {
-                $uploadApi = new UploadApi();
-                $upload = $uploadApi->upload(
-                    $request->file('avatar')->getRealPath(),
-                    ['folder' => 'eduide/avatars']
-                );
-                $validated['avatar'] = $upload['secure_url'];
+                $upload = Cloudinary::upload($request->file('avatar')->getRealPath(), [
+                    'folder' => 'eduide/avatars'
+                ]);
+                $validated['avatar'] = $upload->getSecurePath();
             } catch (\Exception $e) {
                 return back()->withErrors(['avatar' => 'Gagal upload avatar: ' . $e->getMessage()]);
             }
