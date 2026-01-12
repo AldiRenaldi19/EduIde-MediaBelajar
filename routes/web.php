@@ -111,6 +111,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/courses/export', 'exportCourses')->name('courses.export');
     });
 
+    // Module thumbnail update
+    Route::post('/modules/{id}/thumbnail', [\App\Http\Controllers\ModuleController::class, 'updateThumbnail'])->name('modules.thumbnail.update');
+
     // User management
     Route::get('/users', [AdminController::class, 'users'])->name('users.index');
     Route::post('/users/{id}/toggle-admin', [AdminController::class, 'toggleUserAdmin'])->name('users.toggleAdmin');

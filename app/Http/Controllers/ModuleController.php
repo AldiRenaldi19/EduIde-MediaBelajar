@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Module;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ModuleController extends Controller
 {
@@ -47,6 +48,45 @@ class ModuleController extends Controller
             ->first();
 
         return view('user.learn', compact('course', 'module', 'modules', 'previousModule', 'nextModule', 'isEnrolled'));
+    }
+
+    /**
+     * Update module thumbnail (admin action). Validates file and uploads to Cloudinary with error handling.
+     * Path: POST /admin/modules/{id}/thumbnail
+     */
+    public function updateThumbnail(Request $request, $id)
+    {
+        $module = Module::findOrFail($id);
+
+        // simple auth check - only allow admins
+        if (!Auth::check() || !Auth::user()->is_admin) {
+            return abort(403);
+        }
+
+        $request->validate([
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg,webp|max:4096',
+        ]);
+
+        if (!$request->hasFile('thumbnail')) {
+            return back()->withErrors(['thumbnail' => 'File gambar tidak ditemukan.']);
+        }
+
+        try {
+            $file = $request->file('thumbnail');
+
+            $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+            $upload = $cloudinary->uploadApi()->upload($file->getRealPath(), [
+                'folder' => 'eduide/modules'
+            ]);
+
+            $module->thumbnail = $upload['secure_url'] ?? $upload['url'] ?? null;
+            $module->save();
+
+            return back()->with('success', 'Gambar modul berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Module thumbnail upload failed', ['module_id' => $module->id, 'error' => $e->getMessage()]);
+            return back()->withErrors(['thumbnail' => 'GAGAL UPDATE: ' . $e->getMessage()]);
+        }
     }
 
     /**
