@@ -82,8 +82,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/{courseSlug}/modules', [ModuleController::class, 'index'])->name('user.modules');
     Route::get('/user/{courseSlug}/learn/{moduleId}', [ModuleController::class, 'learn'])->name('user.learn');
 
-    // Ulasan - Mengirim pesan testimoni dari Landing Page
-    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    // Ulasan - Mengirim pesan testimoni dari Landing Page (throttled to prevent spam)
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware('throttle:5,1');
 });
 
 /*
@@ -107,5 +107,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/courses/{id}/edit', 'editCourse')->name('courses.edit');
         Route::put('/courses/{id}', 'updateCourse')->name('courses.update');
         Route::delete('/courses/{id}', 'deleteCourse')->name('courses.delete');
+        Route::post('/courses/{id}/toggle-publish', 'togglePublish')->name('courses.toggle');
+        Route::get('/courses/export', 'exportCourses')->name('courses.export');
     });
+
+    // User management
+    Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+    Route::post('/users/{id}/toggle-admin', [AdminController::class, 'toggleUserAdmin'])->name('users.toggleAdmin');
+
+    // Reviews moderation with pagination/search
+    Route::get('/reviews', [AdminController::class, 'reviews'])->name('reviews.index');
 });
