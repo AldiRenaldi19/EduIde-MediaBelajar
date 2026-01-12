@@ -32,7 +32,8 @@ class CourseController extends Controller
             });
         }
 
-        $courses = $query->latest()->get();
+        // Gunakan pagination untuk performa dan UX yang lebih baik
+        $courses = $query->latest()->paginate(12)->withQueryString();
         $categories = Category::all();
 
         return view('user.dashboard', compact('courses', 'categories'));

@@ -189,6 +189,11 @@
             </div>
             @endforelse
         </div>
+
+        {{-- Pagination --}}
+        <div class="mt-10 flex items-center justify-center">
+            {{ $courses->links() }}
+        </div>
     </main>
 
     {{-- Mobile Drawer Overlay --}}
