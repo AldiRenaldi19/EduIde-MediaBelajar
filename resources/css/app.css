@@ -1,11 +1,174 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+[x-cloak] { display: none !important; }
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+@layer base {
+    :root {
+        /* Palette: Luxury Dark (Deep Space Blue/Black & Crisp White) */
+        --bg-page: #000000; /* Absolute Black for depth */
+        --bg-secondary: #020617; /* Very dark slate blue */
+        
+        /* Glass Effects - Crystalline & Premium */
+        --glass-bg: rgba(255, 255, 255, 0.03);
+        --glass-bg-hover: rgba(255, 255, 255, 0.07);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --glass-shine: rgba(255, 255, 255, 0.05);
+        
+        /* Typography */
+        --text-main: #ffffff;
+        --text-muted: #94a3b8; /* Slate 400 */
+        --text-accent: #6366f1; /* Indigo 500 */
+        
+        /* Accents */
+        --accent-glow: rgba(99, 102, 241, 0.3);
+        --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        
+        /* Input Fields */
+        --input-bg: rgba(255, 255, 255, 0.02);
+        --input-border: rgba(255, 255, 255, 0.08);
+        --input-focus: rgba(99, 102, 241, 0.5);
+    }
+
+    body {
+        background-color: var(--bg-page);
+        color: var(--text-main);
+        background-image: 
+            radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 25%),
+            radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 25%);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        @apply font-sans antialiased text-white selection:bg-indigo-500 selection:text-white;
+    }
+}
+
+@layer components {
+    /* Premium Glass Card */
+    .glass-nav {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--card-shadow);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .glass-card:hover {
+        background: var(--glass-bg-hover);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Luxury Input Fields */
+    .input-glass {
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        transition: all 0.3s ease;
+        @apply text-white placeholder-slate-500;
+    }
+    
+    .input-glass:focus {
+        border-color: var(--text-accent);
+        box-shadow: 0 0 15px var(--accent-glow);
+        background: rgba(255, 255, 255, 0.05);
+        outline: none;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* Glow Blobs */
+    .glow-blob {
+        @apply fixed w-[300px] h-[300px] md:w-[600px] md:h-[600px] rounded-full blur-[100px] md:blur-[128px] pointer-events-none -z-10 opacity-40;
+    }
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #020617; 
+}
+::-webkit-scrollbar-thumb {
+    background: #1e293b; 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #6366f1; 
+}
+@layer utilities {
+    .shimmer {
+        position: relative;
+        overflow: hidden;
+    }
+    .shimmer::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        transform: translateX(-100%);
+        background-image: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    .reveal {
+        animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes reveal {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-shine-effect {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-shine-effect::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+        left: -100%;
+        transition: 0.6s;
+    }
+
+    .btn-shine-effect:hover::before {
+        left: 100%;
+    }
 }

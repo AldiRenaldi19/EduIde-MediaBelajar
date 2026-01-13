@@ -7,57 +7,11 @@
     
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #050508; 
-            color: #ffffff; 
-            overflow-x: hidden;
-        }
-
-        .glass-auth { 
-            background: rgba(255, 255, 255, 0.02); 
-            backdrop-filter: blur(30px); 
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .input-glass { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            transition: all 0.3s ease; 
-        }
-
-        .input-glass:focus { 
-            border-color: rgba(99, 102, 241, 0.4); 
-            background: rgba(255, 255, 255, 0.05); 
-            outline: none; 
-        }
-
-        .glow-bg { 
-            position: fixed; 
-            width: 600px; 
-            height: 600px; 
-            filter: blur(150px); 
-            border-radius: 50%; 
-            z-index: -1; 
-            opacity: 0.12; 
-        }
-
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex items-center justify-center p-6 relative">
-    <div class="glow-bg top-[-20%] right-[-10%] bg-indigo-600/30"></div>
-    <div class="glow-bg bottom-[-20%] left-[-10%] bg-blue-600/20"></div>
+<body class="min-h-screen flex items-center justify-center p-6 relative" style="background-color: var(--bg-page); color: var(--text-main);">
+    <div class="glow-blob top-[-20%] right-[-10%] bg-indigo-600/30"></div>
+    <div class="glow-blob bottom-[-20%] left-[-10%] bg-blue-600/20"></div>
 
     {{-- Back Button --}}
     <div class="fixed top-8 left-8 z-50">
@@ -71,12 +25,13 @@
 
     <div class="w-full max-w-lg mt-12 mb-12 fade-in">
         {{-- Brand --}}
-        <div class="text-center mb-8">
+        <div class="text-center mb-8 flex flex-col items-center">
+            <img src="{{ asset('favicon.ico') }}" alt="Logo" class="w-12 h-12 mb-4 rounded-xl shadow-lg shadow-indigo-500/20">
             <h1 class="text-3xl font-extrabold tracking-tighter">Edu<span class="text-indigo-400">Ide</span></h1>
             <p class="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-500 mt-2 opacity-60">Pendaftaran Akun Baru</p>
         </div>
 
-        <div class="glass-auth rounded-[40px] p-10 md:p-12 relative overflow-hidden">
+        <div class="glass-card rounded-[40px] p-10 md:p-12 relative overflow-hidden">
             <h2 class="text-2xl font-bold mb-8 tracking-tight text-center">Bergabung Sekarang</h2>
             
             @if ($errors->any())
@@ -92,30 +47,30 @@
             <form action="{{ route('register') }}" method="POST" class="space-y-5">
                 @csrf
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
+                    <label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">Nama Lengkap</label>
                     <input type="text" name="name" value="{{ old('name') }}" 
-                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-white placeholder-white/10" 
+                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]" 
                         placeholder="Masukkan nama lengkap" required>
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Alamat Email</label>
+                    <label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">Alamat Email</label>
                     <input type="email" name="email" value="{{ old('email') }}" 
-                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-white placeholder-white/10" 
+                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]" 
                         placeholder="email@contoh.com" required>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Password</label>
+                        <label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">Password</label>
                         <input type="password" name="password" 
-                            class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-white placeholder-white/10" 
+                            class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]" 
                             placeholder="••••••••" required>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Konfirmasi</label>
+                        <label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">Konfirmasi</label>
                         <input type="password" name="password_confirmation" 
-                            class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-white placeholder-white/10" 
+                            class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]" 
                             placeholder="••••••••" required>
                     </div>
                 </div>

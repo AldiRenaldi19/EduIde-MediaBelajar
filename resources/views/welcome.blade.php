@@ -1,250 +1,300 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduIde — Masa Depan Edukasi Digital</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="EduIde — Platform belajar interaktif dengan kurikulum berstandar industri. Kuasai skill masa depan dengan mentor expert.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:title" content="EduIde — Future Learning Platform">
+    <meta property="og:description" content="Platform belajar interaktif dengan kurikulum berstandar industri. Kuasai skill masa depan dengan mentor expert.">
+    <meta property="og:image" content="{{ asset('favicon.ico') }}">
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>EduIde — Future Learning Platform</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #050508; 
-            color: #ffffff;
-            overflow-x: hidden;
-        }
-
-        .glass-main {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            box-shadow: 0 25px 80px -12px rgba(79, 70, 229, 0.25);
-        }
-
-        .text-glow {
-            text-shadow: 0 0 30px rgba(129, 140, 248, 0.4);
-        }
-
-        .glow-blob {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            filter: blur(100px);
-            border-radius: 50%;
-            z-index: 0;
-            opacity: 0.4;
-            animation: float 20s infinite alternate;
-        }
-
-        @keyframes float {
-            0% { transform: translate(-5%, -5%) scale(1); }
-            100% { transform: translate(10%, 10%) scale(1.1); }
-        }
-
-        .feature-card {
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .feature-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px);
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        #reviewModal { transition: opacity 0.4s ease; }
-        .modal-content { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease; }
+        body { font-family: 'Outfit', sans-serif; }
+        .text-glow { text-shadow: 0 0 30px rgba(255, 255, 255, 0.15); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center p-6 relative py-20">
-    
-    {{-- Decorative Background --}}
-    <div class="glow-blob top-[-10%] left-[-10%] bg-indigo-600/30"></div>
-    <div class="glow-blob bottom-[-10%] right-[-10%] bg-cyan-500/20"></div>
+<body class="antialiased overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
-    <div class="relative z-10 w-full max-w-5xl">
-        {{-- Hero Section --}}
-        <div class="glass-main rounded-[50px] p-8 md:p-16 lg:p-20 overflow-hidden mb-20">
-            <div class="flex justify-center mb-10">
-                <div class="px-6 py-2 border border-white/10 rounded-full bg-white/5 backdrop-blur-xl">
-                    <span class="text-[10px] font-black tracking-[0.4em] text-indigo-400 uppercase">Evolusi Pembelajaran Digital</span>
-                </div>
+    <!-- Decorative Globs -->
+    <div class="glow-blob top-[-10%] left-[-10%] bg-indigo-600"></div>
+    <div class="glow-blob top-[30%] right-[-10%] bg-blue-600"></div>
+    <div class="glow-blob bottom-[-10%] left-[20%] bg-purple-600"></div>
+
+    <!-- Navigation -->
+    <x-navbar />
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center pt-20">
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md animate-fade-in-up">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">Revolusi Pembelajaran Digital</span>
             </div>
-
-            <div class="text-center mb-16">
-                <h1 class="text-7xl md:text-9xl font-extrabold tracking-tighter mb-6 text-glow leading-none">
-                    Edu<span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-indigo-400">Ide</span>
-                </h1>
-                <p class="text-gray-400 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
-                    Akses kursus teknologi eksklusif tanpa biaya. Bangun portofolio nyata dan <span class="text-white border-b-2 border-indigo-500">terkoneksi langsung</span> dengan standar industri.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-                @php
-                    $features = [
-                        ['icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'bg' => 'bg-indigo-500/20', 'text' => 'text-indigo-400', 'title' => 'Kurikulum Adaptif', 'desc' => 'Materi yang selalu diperbarui mengikuti tren teknologi.'],
-                        ['icon' => 'M13 10V3L4 14h7v7l9-11h-7z', 'bg' => 'bg-cyan-500/20', 'text' => 'text-cyan-400', 'title' => 'Akses Instan', 'desc' => 'Daftar dalam hitungan detik dan langsung mulai belajar.'],
-                        ['icon' => 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', 'bg' => 'bg-purple-500/20', 'text' => 'text-purple-400', 'title' => 'Sertifikat Valid', 'desc' => 'Dapatkan pengakuan resmi atas keahlian Anda.']
-                    ];
-                @endphp
-
-                @foreach($features as $f)
-                <div class="feature-card p-6 rounded-[32px] bg-white/[0.02]">
-                    <div class="w-12 h-12 {{ $f['bg'] }} rounded-2xl flex items-center justify-center mb-4 {{ $f['text'] }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $f['icon'] }}" /></svg>
-                    </div>
-                    <h3 class="text-sm font-bold mb-2 uppercase tracking-wide">{{ $f['title'] }}</h3>
-                    <p class="text-xs text-gray-500 leading-relaxed font-medium">{{ $f['desc'] }}</p>
-                </div>
-                @endforeach
-            </div>
-
-            {{-- CTA Buttons --}}
-            <div class="flex flex-col md:flex-row items-center justify-center gap-6">
-                {{-- Ke Katalog/Dashboard Utama --}}
-                <a href="{{ route('user.dashboard') }}" class="group w-full md:w-auto px-12 py-6 bg-white text-black font-black rounded-[24px] hover:bg-indigo-400 hover:text-white transition-all duration-500 shadow-2xl flex items-center justify-center gap-3">
-                    JELAJAHI KURSUS
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            
+            <h1 class="text-5xl md:text-8xl font-extrabold tracking-tighter mb-8 leading-tight text-glow animate-fade-in-up delay-100">
+                Kuasai Skill <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-white to-purple-400">Masa Depan.</span>
+            </h1>
+            
+            <p class="text-[var(--text-muted)] text-base md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-in-up delay-200">
+                Platform belajar interaktif dengan kurikulum berstandar industri. Tingkatkan karirmu dengan materi yang relevan dan mentor berpengalaman.
+            </p>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-5 animate-fade-in-up delay-300">
+                <a href="{{ route('register') }}" class="px-10 py-5 rounded-2xl btn-primary text-xs font-black uppercase tracking-[0.2em] w-full md:w-auto">
+                    Mulai Belajar Sekarang
                 </a>
-                
-                <div class="flex items-center gap-4 w-full md:w-auto">
-                    @auth
-                        @if(auth()->user()->role === 'admin')
-                            <a href="{{ route('admin.dashboard') }}" class="flex-1 md:flex-none px-10 py-6 border border-white/10 rounded-[24px] bg-white/5 hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-[0.2em] text-center">Admin Panel</a>
-                        @else
-                            <a href="{{ route('user.enrolled') }}" class="flex-1 md:flex-none px-10 py-6 border border-white/10 rounded-[24px] bg-white/5 hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-[0.2em] text-center">My Learning</a>
-                        @endif
-                    @else
-                        <a href="{{ route('login') }}" class="flex-1 md:flex-none px-10 py-6 border border-white/10 rounded-[24px] bg-white/5 hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-[0.2em] text-center">Login</a>
-                        <a href="{{ route('register') }}" class="flex-1 md:flex-none px-10 py-6 border border-white/10 rounded-[24px] bg-white/5 hover:bg-white/10 transition-all text-xs font-bold uppercase tracking-[0.2em] text-center text-indigo-400 border-indigo-500/20">Register</a>
-                    @endauth
+                <a href="#featured" class="px-10 py-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-black uppercase tracking-[0.2em] transition-all w-full md:w-auto flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                    Lihat Katalog
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section (Glass Banner) -->
+    <section class="py-10 border-y border-white/5 bg-black/20 backdrop-blur-sm">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="space-y-2">
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">15K+</h3>
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)]">Siswa Aktif</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">120+</h3>
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)]">Modul Materi</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">50+</h3>
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)]">Mentor Expert</p>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-3xl md:text-4xl font-bold text-white">4.9</h3>
+                    <p class="text-[10px] uppercase tracking-widest text-[var(--text-muted)]">Rating Rata-rata</p>
                 </div>
             </div>
         </div>
+    </section>
 
-        {{-- Showcase Section --}}
-        <div class="w-full">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-                <div class="flex items-center gap-4 flex-grow">
-                    <h2 class="text-xs font-black uppercase tracking-[0.4em] text-indigo-400 shrink-0">Showcase & Testimoni</h2>
-                    <div class="h-[1px] w-full bg-white/10"></div>
-                </div>
-                <button onclick="toggleModal()" class="px-6 py-3 bg-indigo-500/10 border border-indigo-500/30 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-500 hover:text-white transition-all">
-                    + Tulis Ulasan
-                </button>
+    <!-- Features Section -->
+    <section class="py-32 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-3xl md:text-5xl font-bold mb-6">Kenapa EduIde?</h2>
+                <div class="w-24 h-1 bg-indigo-500 mx-auto rounded-full"></div>
             </div>
 
-            <div class="flex overflow-x-auto gap-8 pb-10 no-scrollbar snap-x cursor-grab active:cursor-grabbing">
-                <div class="min-w-[320px] md:min-w-[450px] snap-center">
-                    <div class="glass-main rounded-[32px] overflow-hidden group border-white/5 h-64 relative">
-                        <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-700" alt="Course">
-                        <div class="absolute inset-0 bg-gradient-to-t from-[#050508] to-transparent"></div>
-                        <div class="absolute bottom-6 left-6">
-                            <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 text-[10px] font-bold rounded-full border border-cyan-500/30 uppercase">Cybersecurity</span>
-                            <h4 class="text-white font-bold mt-2">Ethical Hacking Masterclass</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-card p-10 rounded-[32px]">
+                    <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 flex items-center justify-center mb-8 text-indigo-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Akses Seumur Hidup</h3>
+                    <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                        Sekali bayar, akses materi selamanya. Termasuk update materi di masa depan tanpa biaya tambahan.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-card p-10 rounded-[32px] relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-8 text-purple-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
                         </div>
+                        <h3 class="text-xl font-bold mb-4">Proyek Portofolio</h3>
+                        <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                            Belajar dengan praktik langsung. Bangun portofolio nyata yang bisa kamu pamerkan ke rekruter.
+                        </p>
                     </div>
                 </div>
 
-                @forelse($reviews as $review)
-                <div class="min-w-[300px] md:min-w-[350px] snap-center">
-                    <div class="glass-main p-8 rounded-[32px] h-64 flex flex-col border-white/5 bg-white/[0.01]">
-                        <div class="flex gap-1 mb-6 text-yellow-500">
-                            @for($i = 0; $i < 5; $i++)
-                                <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                            @endfor
-                        </div>
-                        <p class="text-gray-400 text-sm italic leading-relaxed mb-6 line-clamp-3">"{{ e($review->message) }}"</p>
-                        <div class="mt-auto flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center text-[10px] font-bold text-indigo-300">
-                                {{ strtoupper(substr($review->name, 0, 2)) }}
+                <!-- Card 3 -->
+                <div class="glass-card p-10 rounded-[32px]">
+                    <div class="w-16 h-16 rounded-2xl bg-pink-500/20 flex items-center justify-center mb-8 text-pink-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">Komunitas Diskusi</h3>
+                    <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                        Bergabung dengan ribuan developer lain. Diskusi, tanya jawab, dan networking dalam satu platform.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Courses Section -->
+    <section id="featured" class="py-32 relative overflow-hidden">
+        <div class="glow-blob top-[20%] right-[-10%] bg-indigo-600/10"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 reveal">
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-bold mb-4 text-white">Katalog Unggulan</h2>
+                    <div class="w-24 h-1 bg-indigo-500 mb-6 rounded-full"></div>
+                    <p class="text-[var(--text-muted)] text-sm md:text-base max-w-xl leading-relaxed">Pilih kurikulum terbaik yang telah disusun oleh para ahli industri untuk mengakselerasi karirmu secara profesional.</p>
+                </div>
+                <a href="{{ route('user.dashboard') }}" class="group flex items-center gap-3 text-indigo-400 font-bold uppercase tracking-widest text-[10px] hover:text-indigo-300 transition-all">
+                    Lihat Semua Kursus
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                @forelse($featuredCourses as $index => $course)
+                    <div class="glass-card rounded-[40px] overflow-hidden group reveal" style="animation-delay: {{ $index * 100 }}ms">
+                        <div class="relative aspect-video overflow-hidden">
+                            <img src="{{ $course->thumbnail_url }}" alt="{{ $course->title }}" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 shimmer">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+                            <div class="absolute top-6 left-6">
+                                <span class="px-4 py-1.5 rounded-full bg-indigo-600/90 backdrop-blur-md text-[9px] font-black text-white uppercase tracking-[0.2em] border border-white/20">
+                                    {{ $course->category->name ?? 'Course' }}
+                                </span>
                             </div>
-                            <div>
-                                <h5 class="text-xs font-bold text-white">{{ e($review->name) }}</h5>
-                                <p class="text-[10px] text-gray-600 uppercase tracking-widest">{{ e($review->job) }}</p>
+                        </div>
+                        <div class="p-8 md:p-10">
+                            <h3 class="text-xl md:text-2xl font-bold mb-3 group-hover:text-indigo-400 transition-colors line-clamp-1 text-white">{{ $course->title }}</h3>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest font-black mb-10 opacity-60">By {{ $course->author->name }}</p>
+                            
+                            <div class="flex items-center justify-between pt-8 border-t border-white/10">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] text-gray-500 uppercase tracking-widest mb-1 opacity-50 font-bold">Value</span>
+                                    <span class="text-xl font-bold text-white tracking-tight">Rp{{ number_format($course->price, 0, ',', '.') }}</span>
+                                </div>
+                                <a href="{{ route('user.show', $course->slug) }}" class="px-7 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-500 text-white text-[10px] font-black uppercase tracking-[0.15em] transition-all btn-shine-effect shadow-lg shadow-indigo-600/10">
+                                    Detail
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
                 @empty
-                <div class="min-w-[300px] flex items-center justify-center border-2 border-dashed border-white/10 rounded-[32px]">
-                    <p class="text-gray-600 text-xs uppercase tracking-widest">Belum ada ulasan.</p>
-                </div>
+                    <div class="col-span-1 md:col-span-3 text-center py-24 glass-card rounded-[40px] border-dashed border-white/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto text-gray-700 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        <p class="text-gray-500 italic uppercase tracking-[0.3em] text-[10px] font-black">Coming Soon: Premium Content</p>
+                    </div>
                 @endforelse
             </div>
         </div>
+    </section>
 
-        <div class="mt-16 text-center text-[9px] tracking-[0.4em] uppercase text-gray-800">
-            © 2026 EduIde Ecosystem — Disrupting Traditional Education.
-        </div>
-    </div>
+    <!-- Testimonials Slider (Powered by Reviews) -->
+    <section class="py-20 relative overflow-hidden">
+        <div class="container mx-auto px-6 relative z-10">
+            {{-- Inline Review Form (Expandable) --}}
+            <div x-data="{ open: false }" x-cloak class="mb-12">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold mb-2">Kata Mereka</h2>
+                        <p class="text-[var(--text-muted)] text-sm">Pengalaman belajar dari alumni EduIde.</p>
+                    </div>
+                    
+                    <button @click="open = !open" 
+                            class="w-full md:w-auto px-8 py-4 rounded-xl border transition-all btn-shine-effect flex items-center justify-center gap-3"
+                            :class="open ? 'bg-white/10 border-white/20 text-white' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'">
+                        <span x-text="open ? 'Batal Menulis' : 'Tulis Ulasan'"></span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-300" :class="{ 'rotate-45': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
+                </div>
 
-    {{-- Review Modal --}}
-    <div id="reviewModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-6 bg-[#050508]/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <div class="modal-content glass-main w-full max-w-lg rounded-[40px] p-8 md:p-12 scale-90 opacity-0 border-white/20 shadow-2xl shadow-indigo-500/40">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xl font-bold tracking-tight text-white">Kirim Ulasan Anda</h2>
-                <button onclick="toggleModal()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
+                <div x-show="open" 
+                     x-collapse
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0 -translate-y-4"
+                     x-transition:enter-end="opacity-100 translate-y-0 shadow-2xl"
+                     class="max-w-2xl mx-auto">
+                    
+                    <div class="glass-card p-8 md:p-10 rounded-[35px] border-white/20 shadow-[0_0_50px_rgba(99,102,241,0.1)] !transform-none !hover:translate-y-0">
+                        <div class="mb-8 pb-4 border-b border-white/10">
+                            <h3 class="text-xl font-bold text-white">Bagikan Pengalamanmu</h3>
+                            <p class="text-[9px] text-gray-500 uppercase tracking-widest mt-1">Edukasi Yang Memberdayakan • Berikan Feedback Terbaikmu</p>
+                        </div>
+
+                        <form action="{{ route('reviews.store') }}" method="POST" class="space-y-6">
+                            @csrf
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3">Nama Lengkap</label>
+                                    <input type="text" name="name" required class="input-glass w-full px-5 py-4 rounded-2xl text-sm" placeholder="Nama Anda">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3">Pekerjaan / Mahasiswa</label>
+                                    <input type="text" name="job" required class="input-glass w-full px-5 py-4 rounded-2xl text-sm" placeholder="Contoh: UI/UX Designer">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-3">Ulasan Detail</label>
+                                <textarea name="message" rows="4" required class="input-glass w-full px-5 py-4 rounded-2xl text-sm resize-none" placeholder="Ceritakan progres belajar Anda..."></textarea>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="w-full md:w-auto px-10 py-5 btn-primary rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-xl shadow-indigo-600/30 hover:scale-[1.05] active:scale-95 transition-all btn-shine-effect">
+                                    Submit Testimoni Sekarang
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
 
-            <form action="{{ route('reviews.store') }}" method="POST" class="space-y-6">
-                @csrf
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">Nama Lengkap</label>
-                    <input type="text" name="name" required maxlength="50" placeholder="Alex J." class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all">
+            <!-- Existing Reviews Display -->
+            @if(session('success'))
+                <div class="mb-8 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] text-center backdrop-blur-md">
+                    {{ session('success') }}
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">Pekerjaan / Status</label>
-                    <input type="text" name="job" required maxlength="50" placeholder="Mahasiswa / Designer" class="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2">Pesan Ulasan</label>
-                    <textarea name="message" required maxlength="255" rows="4" placeholder="Bagikan pengalaman belajar Anda..." class="w-full bg-white/5 border border-white/10 rounded-3xl px-5 py-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition-all resize-none"></textarea>
-                </div>
-                <button type="submit" class="w-full py-5 bg-gradient-to-r from-indigo-600 to-cyan-600 rounded-2xl font-bold text-white text-sm tracking-widest uppercase hover:brightness-125 active:scale-95 transition-all">
-                    Kirim Ulasan Sekarang
-                </button>
-            </form>
-        </div>
-    </div>
+            @endif
 
-    <script>
-        function toggleModal() {
-            const modal = document.getElementById('reviewModal');
-            const content = modal.querySelector('.modal-content');
-            
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modal.classList.replace('opacity-0', 'opacity-100');
-                    content.classList.replace('scale-90', 'scale-100');
-                    content.classList.replace('opacity-0', 'opacity-100');
-                }, 10);
-            } else {
-                modal.classList.replace('opacity-100', 'opacity-0');
-                content.classList.replace('scale-100', 'scale-90');
-                content.classList.replace('opacity-100', 'opacity-0');
-                setTimeout(() => {
-                    modal.classList.remove('flex');
-                    modal.classList.add('hidden');
-                }, 400);
-            }
-        }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('reviewModal');
-            if (event.target == modal) toggleModal();
-        }
-    </script>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                @foreach($reviews as $review)
+                <div class="glass-card p-6 rounded-2xl border border-white/5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white">
+                            {{ substr($review->name, 0, 1) }}
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">{{ $review->name }}</h4>
+                            <p class="text-[10px] text-indigo-400 uppercase tracking-wider font-bold">{{ $review->job }}</p>
+                        </div>
+                    </div>
+                    <p class="text-[var(--text-muted)] text-sm leading-relaxed italic">"{{ $review->message }}"</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/5 bg-black/40 backdrop-blur-lg mt-20">
+        <div class="container mx-auto px-6 text-center">
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <span class="text-lg font-bold text-white">Edu<span class="text-indigo-400">Ide</span></span>
+            </div>
+            <p class="text-[var(--text-muted)] text-xs">© {{ date('Y') }} EduIde Platform. All rights reserved.</p>
+        </div>
+    </footer>
+
 </body>
 </html>

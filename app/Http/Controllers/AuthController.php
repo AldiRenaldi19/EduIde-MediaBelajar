@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{Auth, Hash, Password};
@@ -21,13 +23,9 @@ class AuthController extends Controller
     /**
      * Proses Register - Validasi data dan pembuatan akun user baru.
      */
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        // Validation handled by RegisterRequest
 
         $user = User::create([
             'name'     => $request->name,
@@ -52,12 +50,9 @@ class AuthController extends Controller
     /**
      * Proses Login - Verifikasi kredensial dan inisialisasi sesi.
      */
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->validated();
 
         // Login dengan fitur 'Remember Me' untuk kenyamanan user
         if (Auth::attempt($credentials, $request->remember)) {
@@ -90,16 +85,34 @@ class AuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
 
-            // Cari user berdasarkan email, jika tidak ada buat baru (updateOrCreate)
-            $user = User::updateOrCreate([
-                'email' => $googleUser->email,
-            ], [
-                'name'              => $googleUser->name,
-                'google_id'         => $googleUser->id,
-                'avatar'            => $googleUser->avatar,
-                'password'          => Hash::make(Str::random(24)), // Password random aman
-                'email_verified_at' => now(),
-            ]);
+            $user = User::where('email', $googleUser->email)->first();
+
+            if ($user) {
+                // SECURITY FIX: Prevent account takeover.
+                // If user exists but has no google_id, it means they registered with password.
+                // We should NOT automatically link it unless verified (skipped for MVP, just showing error).
+                if (!$user->google_id) {
+                     return redirect()->route('login')->withErrors([
+                        'email' => 'Email ini sudah terdaftar dengan password. Silakan login manual lalu hubungkan akun Google di menu profil.'
+                    ]);
+                }
+
+                // Jika user sudah ada dan google_id cocok, update data avatar saja
+                $user->update([
+                    // 'google_id' => $googleUser->id, // No need to update ID if it matches
+                    'avatar'    => $googleUser->avatar,
+                ]);
+            } else {
+                // Jika user baru, buat akun baru
+                $user = User::create([
+                    'name'              => $googleUser->name,
+                    'email'             => $googleUser->email,
+                    'google_id'         => $googleUser->id,
+                    'avatar'            => $googleUser->avatar,
+                    'password'          => Hash::make(Str::random(24)),
+                    'email_verified_at' => now(),
+                ]);
+            }
 
             Auth::login($user);
             return redirect()->route('user.dashboard');

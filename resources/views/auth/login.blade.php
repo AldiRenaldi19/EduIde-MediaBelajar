@@ -7,78 +7,9 @@
 
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #050508; 
-            color: #ffffff; 
-            overflow: hidden; 
-        }
-
-        .glass-auth { 
-            background: rgba(255, 255, 255, 0.02); 
-            backdrop-filter: blur(30px); 
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .input-glass { 
-            background: rgba(255, 255, 255, 0.03); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            transition: all 0.3s ease; 
-        }
-
-        .input-glass:focus { 
-            border-color: rgba(99, 102, 241, 0.4); 
-            background: rgba(255, 255, 255, 0.05); 
-            outline: none; 
-        }
-
-        .glow-blob { 
-            position: fixed; 
-            width: 500px; 
-            height: 500px; 
-            filter: blur(120px); 
-            border-radius: 50%; 
-            z-index: -1; 
-            opacity: 0.15; 
-        }
-
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Custom Checkbox */
-        input[type="checkbox"] {
-            appearance: none;
-            background-color: rgba(255, 255, 255, 0.05);
-            width: 1.1rem;
-            height: 1.1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-            display: grid;
-            place-content: center;
-            cursor: pointer;
-        }
-        input[type="checkbox"]:checked { background-color: #6366f1; border-color: #6366f1; }
-        input[type="checkbox"]::before {
-            content: "";
-            width: 0.6rem; height: 0.6rem;
-            transform: scale(0);
-            transition: 120ms transform ease-in-out;
-            box-shadow: inset 1em 1em white;
-            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-        }
-        input[type="checkbox"]:checked::before { transform: scale(1); }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex items-center justify-center p-6 relative">
+<body class="min-h-screen flex items-center justify-center p-6 relative" style="background-color: var(--bg-page); color: var(--text-main);">
     
     <div class="glow-blob top-[-10%] left-[-5%] bg-indigo-600/40"></div>
     <div class="glow-blob bottom-[-10%] right-[-5%] bg-blue-500/30"></div>
@@ -95,12 +26,13 @@
 
     <div class="w-full max-w-md relative fade-in">
         {{-- Brand --}}
-        <div class="text-center mb-10">
+        <div class="text-center mb-10 flex flex-col items-center">
+            <img src="{{ asset('favicon.ico') }}" alt="Logo" class="w-12 h-12 mb-4 rounded-xl shadow-lg shadow-indigo-500/20">
             <h1 class="text-3xl font-extrabold tracking-tighter">Edu<span class="text-indigo-400">Ide</span></h1>
             <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.4em] mt-2 opacity-60">Pintu Menuju Ide Baru</p>
         </div>
 
-        <div class="glass-auth rounded-[40px] p-10 md:p-12 relative overflow-hidden">
+        <div class="glass-card rounded-[40px] p-10 md:p-12 relative overflow-hidden">
             <h2 class="text-2xl font-bold mb-2 tracking-tight">Selamat Datang</h2>
             <p class="text-gray-500 text-xs mb-8">Silakan masuk untuk melanjutkan belajar.</p>
             
@@ -114,25 +46,25 @@
             <form action="{{ route('login') }}" method="POST" class="space-y-5">
                 @csrf
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 ml-1">Email</label>
+                    <label class="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">Email</label>
                     <input type="email" name="email" value="{{ old('email') }}" 
-                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-white placeholder-white/10" 
+                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]" 
                         placeholder="email@anda.com" required autofocus>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-2 ml-1">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Password</label>
+                        <label class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Password</label>
                         <a href="{{ route('password.request') }}" class="text-[10px] text-indigo-400 font-bold hover:text-indigo-300 transition-colors">Lupa?</a>
                     </div>
                     <input type="password" name="password" 
-                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-white placeholder-white/10" 
+                        class="input-glass w-full px-6 py-4 rounded-2xl text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]" 
                         placeholder="••••••••" required>
                 </div>
 
                 <div class="flex items-center gap-3 ml-1">
                     <input type="checkbox" name="remember" id="remember">
-                    <label for="remember" class="text-[10px] font-bold text-gray-500 uppercase tracking-widest cursor-pointer hover:text-gray-400">Ingat saya</label>
+                    <label for="remember" class="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest cursor-pointer hover:text-[var(--text-main)]">Ingat saya</label>
                 </div>
 
                 <button type="submit" class="w-full bg-white text-black hover:bg-indigo-500 hover:text-white py-5 rounded-2xl font-black text-[10px] transition-all active:scale-[0.98] uppercase tracking-widest mt-4 shadow-lg shadow-white/5">

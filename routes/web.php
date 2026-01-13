@@ -9,7 +9,7 @@ use App\Http\Controllers\{
     ModuleController,
     ProfileController
 };
-use App\Models\Review;
+use App\Models\{Review, Course};
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +20,8 @@ use App\Models\Review;
 // Landing Page - Mengambil 6 ulasan terbaru untuk ditampilkan di slider testimoni di welcome.blade.php
 Route::get('/', function () {
     $reviews = Review::latest()->take(6)->get();
-    return view('welcome', compact('reviews'));
+    $featuredCourses = Course::where('is_published', true)->latest()->take(3)->get();
+    return view('welcome', compact('reviews', 'featuredCourses'));
 })->name('home');
 
 // Katalog Kursus User - Menampilkan dashboard katalog kursus dari folder views/user/dashboard.blade.php
@@ -81,6 +82,7 @@ Route::middleware('auth')->group(function () {
     // Module Learning - Halaman pembelajaran modul
     Route::get('/user/{courseSlug}/modules', [ModuleController::class, 'index'])->name('user.modules');
     Route::get('/user/{courseSlug}/learn/{moduleId}', [ModuleController::class, 'learn'])->name('user.learn');
+    Route::post('/modules/{moduleId}/complete', [ModuleController::class, 'markAsComplete'])->name('user.modules.complete');
 
     // Ulasan - Mengirim pesan testimoni dari Landing Page (throttled to prevent spam)
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store')->middleware('throttle:5,1');
@@ -103,10 +105,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Manajemen Kursus (CRUD) - Mengelola kursus via views/admin/course-form.blade.php
     Route::controller(AdminController::class)->group(function () {
         Route::get('/courses/create', 'createCourse')->name('courses.create');
-        Route::post('/courses/store', 'storeCourse')->name('courses.store');
+        // Route::post('/courses/store', 'storeCourse')->name('courses.store'); // Diganti ke CourseController
         Route::get('/courses/{id}/edit', 'editCourse')->name('courses.edit');
-        Route::put('/courses/{id}', 'updateCourse')->name('courses.update');
-        Route::delete('/courses/{id}', 'deleteCourse')->name('courses.delete');
+        // Route::put('/courses/{id}', 'updateCourse')->name('courses.update'); // Diganti ke CourseController
+        // Route::delete('/courses/{id}', 'deleteCourse')->name('courses.delete'); // Diganti ke CourseController
         Route::post('/courses/{id}/toggle-publish', 'togglePublish')->name('courses.toggle');
         Route::get('/courses/export', 'exportCourses')->name('courses.export');
     });
@@ -115,6 +117,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/modules/{id}/thumbnail', [\App\Http\Controllers\ModuleController::class, 'updateThumbnail'])->name('modules.thumbnail.update');
     // Module content attach/upload
     Route::post('/modules/{id}/content', [\App\Http\Controllers\ModuleController::class, 'updateContent'])->name('modules.content.update');
+    // Create module for course
+    Route::post('/courses/{id}/modules', [ModuleController::class, 'store'])->name('courses.modules.store');
+
+    // Course CRUD Actions (Using CourseController logic)
+    Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
+    Route::put('/courses/{id}', [CourseController::class, 'update'])->name('courses.update');
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy'])->name('courses.delete');
+
+    // Delete module
+    Route::delete('/modules/{id}', [ModuleController::class, 'destroy'])->name('modules.delete');
 
     // User management
     Route::get('/users', [AdminController::class, 'users'])->name('users.index');

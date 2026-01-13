@@ -1,77 +1,91 @@
-# EduIde — Media Belajar
+# 🌌 EduIde — Future Learning Ecosystem
 
-EduIde is a Laravel-based learning platform. This repository contains the application code for a course catalog, enrollment, user authentication (including Google OAuth), and testimonial features.
+<div align="center">
+  <img src="resources/images/welcome-hero.jpg" alt="EduIde Hero" width="100%" style="border-radius: 40px; margin-bottom: 20px;">
+  
+  [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
+  [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com)
+  [![AlpineJS](https://img.shields.io/badge/Alpine.js-3.x-8BC0D0?style=for-the-badge&logo=alpine.js)](https://alpinejs.dev)
+  [![Cloudinary](https://img.shields.io/badge/Cloudinary-Integration-3448C5?style=for-the-badge&logo=cloudinary)](https://cloudinary.com)
+</div>
 
-**Status:** Development (local)
+---
 
-## Quick links
+## ✨ Overview
+**EduIde** is a premium, high-performance Learning Management System (LMS) designed with a **Luxury Dark Glassmorphism** aesthetic. It provides a seamless, crystalline interface for students to master future-proof skills and for administrators to manage curriculum with surgical precision.
 
-- Repo: https://github.com/AldiRenaldi19/EduIde-MediaBelajar
+### 💎 Key Features
+-   **Luxury Experience**: Elegant Blue/White/Black color palette with interactive glass effects, micro-animations, and shimmer states.
+-   **Intelligent Catalog**: Dynamic course discovery with 16:9 uniform thumbnails and smart category filtering.
+-   **Advanced Learning Flow**: Interactive lesson viewer with Plyr integration, scroll progress tracking, and crystal-clear PDF/Video support.
+-   **Admin Console 2.0**: Professional dashboard for course CRUD, automated audit logs, and localized PDF/CSV data exports.
+-   **Cloud-First Media**: Full Cloudinary integration for lightning-fast asset delivery and automatic image optimization.
+-   **Secure Authentication**: Dual-layered auth with standard credentials and Google OAuth 2.0 support.
+-   **Smart Notifications**: Custom Alpine.js-powered floating glass toast system for non-intrusive feedback.
 
-## Requirements
+---
 
-- PHP 8.2+
-- Composer
-- MySQL (or compatible database)
-- Node.js & npm
+## 🛠 Tech Stack
+-   **Framework**: [Laravel 11.x](https://laravel.com)
+-   **Frontend**: [Alpine.js](https://alpinejs.dev) & [Vite](https://vitejs.dev)
+-   **Styling**: [Tailwind CSS](https://tailwindcss.com) (Luxury Design Tokens)
+-   **Database**: MySQL / PostgreSQL
+-   **Storage**: [Cloudinary](https://cloudinary.com) (Images & Videos)
+-   **Rendering**: [DomPDF](https://github.com/barryvdh/laravel-dompdf) (Advanced PDF Reporting)
+-   **Video**: [Plyr.io](https://plyr.io) (Customized Interactive Player)
 
-## Setup (development)
+---
 
-1. Clone and install dependencies:
+## 🚀 Installation & Setup
 
+### 1. Zero to One: Clone & Install
 ```bash
 git clone https://github.com/AldiRenaldi19/EduIde-MediaBelajar.git
 cd EduIde-MediaBelajar
 composer install
+npm install
 ```
 
-2. Environment and keys (DO NOT commit `.env`):
-
+### 2. Environment Configuration
+Create your environment file and configure your credentials:
 ```bash
 cp .env.example .env
-# edit .env with your local DB, mail, cloudinary and google oauth values
 php artisan key:generate
 ```
+> [!IMPORTANT]
+> Ensure you configure `CLOUDINARY_CLOUD_NAME`, `GOOGLE_CLIENT_ID`, and your Database credentials in `.env` to enable full functionality.
 
-3. Database migration & seed (optional):
-
+### 3. Database Initialization
 ```bash
-php artisan migrate
-php artisan db:seed
+php artisan migrate --seed
 ```
 
-4. Frontend assets and dev server:
-
+### 4. Launch the Ecosystem
+Run the development servers:
 ```bash
-npm install
+# Terminal 1: Frontend Assets
 npm run dev
+
+# Terminal 2: PHP Engine
 php artisan serve
 ```
 
-Open http://127.0.0.1:8000 in your browser.
+---
 
-## Security notes
+## 📜 Audit & Security
+-   **Timezone**: Synchronized to `Asia/Jakarta` for real-time reporting.
+-   **Sanitization**: All inputs are strictly validated and sanitized to prevent XSS/SQLi.
+-   **Privacy**: `.env` is protected via `.gitignore`. Legacy secrets have been purged from history.
 
-- `.env` must never be committed. This repo includes `.env.example` as a template.
-- If any secret was exposed in a pushed commit, rotate the key and remove it from history.
+## 🤝 Contributing
+For significant architecture changes or security disclosures, please open an issue first. We maintain a high standard for UI consistency—ensure all new components adhere to the **Global Glassmorphism Design System**.
 
-## Recent changes
+## ⚖️ License
+Licensed under the [MIT License](LICENSE). 
 
-- Added `.env.example` and sanitized hard-coded secrets in configs.
-- Updated Cloudinary to use env vars and fixed minor model/migration issues.
+---
 
-## Tests
-
-Run the test suite:
-
-```bash
-composer test
-```
-
-## Contributing
-
-Open an issue or a PR. For changes involving credentials or deployment, coordinate before adding secrets.
-
-## License
-
-MIT (see `composer.json`).
+<p align="center">
+  Built with ❤️ by <b>EduIde Engineering</b><br>
+  <i>"Powering the future of education, one course at a time."</i>
+</p>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\ModuleCompletion;
 
 class Enrollment extends Model
 {
@@ -46,8 +47,11 @@ class Enrollment extends Model
             return 0;
         }
 
-        // Implementasi progress tracking bisa ditambahkan nanti
-        // Untuk sekarang return 0
-        return 0;
+        $totalModules = $this->course->modules()->count();
+        $completedModules = ModuleCompletion::where('user_id', $this->user_id)
+            ->where('course_id', $this->course_id)
+            ->count();
+
+        return $totalModules > 0 ? round(($completedModules / $totalModules) * 100) : 0;
     }
 }

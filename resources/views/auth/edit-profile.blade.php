@@ -5,87 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profil - EduIde</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #050508; 
-            color: #ffffff;
-        }
-
-        .glass-nav {
-            background: rgba(10, 10, 15, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .form-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(79, 70, 229, 0.5);
-            box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .avatar-preview {
-            width: 120px;
-            height: 120px;
-            border-radius: 16px;
-            object-fit: cover;
-            border: 2px solid rgba(79, 70, 229, 0.3);
-        }
-
-        .error-message {
-            color: #f87171;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-
-        .success-message {
-            color: #86efac;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-    </style>
+    <title>Edit Profil - EduIde</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen">
-    {{-- Navigation Top --}}
-    <nav class="glass-nav sticky top-0 z-50">
-        <div class="container mx-auto px-4 md:px-6 py-4">
-            <div class="flex items-center justify-between">
-                <a href="{{ route('profile') }}" class="flex items-center gap-2 group">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<body class="min-h-screen relative" style="background-color: var(--bg-page); color: var(--text-main);">
+    <x-navbar />
+    
+    <div class="glow-blob top-0 left-0 bg-indigo-600/10"></div>
+
+    <div class="container mx-auto px-6 py-24 md:py-32">
+        <div class="max-w-2xl mx-auto">
+            {{-- Back Button --}}
+            <a href="{{ route('profile') }}" class="flex items-center gap-3 mb-8 group w-fit">
+                <div class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-indigo-600/20 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    <span class="text-sm font-bold text-gray-400 group-hover:text-white transition-colors">Kembali ke Profil</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mx-auto px-4 md:px-6 py-12">
-        <div class="max-w-2xl mx-auto">
+                </div>
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 group-hover:text-white transition-colors">Kembali</span>
+            </a>
             {{-- Page Header --}}
             <div class="mb-12">
                 <h1 class="text-4xl md:text-5xl font-black tracking-tight mb-4">Edit Profil</h1>
@@ -137,23 +75,23 @@
 
                 {{-- Name Field --}}
                 <div class="mb-8">
-                    <label for="name" class="block text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Nama Lengkap</label>
+                    <label for="name" class="block text-xs font-black uppercase tracking-widest text-indigo-400/80 mb-3 ml-1">Nama Lengkap</label>
                     <input type="text" name="name" id="name" value="{{ old('name', auth()->user()->name) }}" 
-                           class="w-full form-input @error('name') border-red-500 @enderror" 
+                           class="input-glass w-full px-6 py-4 rounded-2xl text-sm @error('name') border-red-500 @enderror" 
                            placeholder="Masukkan nama lengkap Anda">
                     @error('name')
-                        <p class="error-message">{{ $message }}</p>
+                        <p class="text-[10px] text-red-400 mt-2 ml-1 font-bold">{{ $message }}</p>
                     @enderror
                 </div>
 
                 {{-- Email Field --}}
                 <div class="mb-8">
-                    <label for="email" class="block text-sm font-black uppercase tracking-widest text-gray-400 mb-3">Email</label>
+                    <label for="email" class="block text-xs font-black uppercase tracking-widest text-indigo-400/80 mb-3 ml-1">Email</label>
                     <input type="email" name="email" id="email" value="{{ old('email', auth()->user()->email) }}" 
-                           class="w-full form-input @error('email') border-red-500 @enderror" 
+                           class="input-glass w-full px-6 py-4 rounded-2xl text-sm @error('email') border-red-500 @enderror" 
                            placeholder="Masukkan email Anda">
                     @error('email')
-                        <p class="error-message">{{ $message }}</p>
+                        <p class="text-[10px] text-red-400 mt-2 ml-1 font-bold">{{ $message }}</p>
                     @enderror
                 </div>
 

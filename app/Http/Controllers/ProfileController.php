@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -13,7 +14,7 @@ class ProfileController extends Controller
     /**
      * Menampilkan profil user yang sedang login.
      */
-    public function index()
+    public function index(): \Illuminate\View\View
     {
         // Ambil data user yang sedang login beserta jumlah kursus yang diambil
         $user = Auth::user()->loadCount('courses');
@@ -24,7 +25,7 @@ class ProfileController extends Controller
     /**
      * Menampilkan halaman edit profil.
      */
-    public function edit()
+    public function edit(): \Illuminate\View\View
     {
         $user = Auth::user();
         return view('auth.edit-profile', compact('user'));
@@ -33,27 +34,28 @@ class ProfileController extends Controller
     /**
      * Update data profil (nama, email, avatar).
      */
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request): \Illuminate\Http\RedirectResponse
     {
         $user = Auth::user();
 
-        $validated = $request->validate([
-            'name'   => 'required|string|max:255',
-            'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
+        $validated = $request->validated();
 
         // Jika ada upload avatar baru
         if ($request->hasFile('avatar')) {
             try {
-                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
-                $result = $cloudinary->uploadApi()->upload($request->file('avatar')->getRealPath(), [
+                $cloud = app(\App\Services\CloudinaryClient::class);
+                $result = $cloud->upload($request->file('avatar')->getRealPath(), [
                     'folder' => 'eduide/avatars'
                 ]);
                 $validated['avatar'] = $result['secure_url'] ?? $result['url'] ?? null;
             } catch (\Exception $e) {
                 return back()->withErrors(['avatar' => 'Gagal upload avatar: ' . $e->getMessage()]);
             }
+        }
+
+        // Jika email berubah, reset status verifikasi
+        if ($request->email !== $user->email) {
+            $validated['email_verified_at'] = null;
         }
 
         $user->update($validated);
@@ -64,7 +66,7 @@ class ProfileController extends Controller
     /**
      * Menampilkan form ubah password.
      */
-    public function showChangePassword()
+    public function showChangePassword(): \Illuminate\View\View
     {
         return view('auth.change-password');
     }
@@ -72,7 +74,7 @@ class ProfileController extends Controller
     /**
      * Update password user.
      */
-    public function updatePassword(Request $request)
+    public function updatePassword(Request $request): \Illuminate\Http\RedirectResponse
     {
         $validated = $request->validate([
             'current_password' => 'required|current_password',

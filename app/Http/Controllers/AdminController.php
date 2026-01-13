@@ -9,17 +9,60 @@ use App\Models\Category;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-// Import SDK Native Cloudinary
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Services\CloudinaryClient;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Requests\StoreCourseRequest;
+use App\Http\Requests\UpdateCourseRequest;
 
+/**
+ * Controller untuk area Admin.
+ *
+ * Menangani:
+ * - Dashboard & statistik platform,
+ * - Manajemen kursus (buat, ubah, hapus, publish),
+ * - Manajemen user & role admin,
+ * - Moderasi ulasan dan audit log,
+ * - Ekspor data kursus ke CSV.
+ */
 class AdminController extends Controller
 {
-    public function __construct()
+    /**
+     * Klien Cloudinary terabstraksi agar mudah di‑mock dan dikonfigurasi.
+     */
+    protected $cloudinary;
+
+    /**
+     * Konstruktor.
+     *
+     * @param  CloudinaryClient  $cloudinary  Abstraksi klien Cloudinary untuk upload thumbnail.
+     */
+    public function __construct(CloudinaryClient $cloudinary)
     {
-        // Cloudinary configuration is loaded from config/cloudinary.php and env.
+        $this->cloudinary = $cloudinary;
+
+        /**
+         * Pengamanan tambahan:
+         * Walaupun semua rute admin sudah dibungkus middleware 'auth' dan 'admin'
+         * di file routes/web.php, kita tetap menambahkan lapisan pengecekan di sini
+         * agar tidak ada method AdminController yang bisa diakses tanpa hak admin.
+         */
+        $this->middleware(function ($request, $next) {
+            if (!auth()->check() || !auth()->user()->is_admin) {
+                abort(403, 'Unauthorized action.');
+            }
+
+            return $next($request);
+        });
     }
 
-    public function dashboard(Request $request)
+    /**
+     * Menampilkan dashboard admin beserta:
+     * - kartu statistik singkat,
+     * - daftar kursus,
+     * - daftar ulasan terbaru.
+     */
+    public function dashboard(Request $request): \Illuminate\View\View
     {
         $stats = [
             ['label' => 'Total Siswa', 'value' => User::where('is_admin', false)->count(), 'color' => 'indigo'],
@@ -33,46 +76,41 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('stats', 'reviews', 'courses'));
     }
 
-    public function deleteReview($id)
+    /**
+     * Menghapus satu ulasan dari sistem (moderasi konten).
+     *
+     * @param  int  $id  ID ulasan yang akan dihapus.
+     */
+    public function deleteReview(int $id): \Illuminate\Http\RedirectResponse
     {
         $review = Review::findOrFail($id);
         $review->delete();
 
-        AuditLog::create([
-            'admin_id' => auth()->id(),
-            'action' => 'delete_review',
-            'target_type' => 'review',
-            'target_id' => $id,
-            'details' => json_encode(['name' => $review->name]),
-        ]);
-
+        // AuditLog handled by Observer
         return back()->with('success', 'Ulasan telah berhasil dihapus.');
     }
 
-    public function createCourse()
+    /**
+     * Form pembuatan kursus baru.
+     * Hanya menyiapkan daftar kategori untuk dipilih di form admin.
+     */
+    public function createCourse(): \Illuminate\View\View
     {
         $categories = Category::all();
         return view('admin.course-form', compact('categories'));
     }
 
-    public function storeCourse(Request $request)
+    /**
+     * Simpan kursus baru melalui form khusus AdminController (legacy).
+     *
+     * Catatan: logika baru dianjurkan menggunakan CourseController::store.
+     */
+    public function storeCourse(StoreCourseRequest $request)
     {
-        $request->validate([
-            'title'        => 'required|string|max:255',
-            'category_id'  => 'required|exists:categories,id',
-            'description'  => 'required',
-            'price'        => 'required|numeric|min:0',
-            'level'        => 'required|in:beginner,intermediate,advanced',
-            'thumbnail'    => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
-
         try {
             $thumbnailUrl = null;
             if ($request->hasFile('thumbnail')) {
-                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
-                $upload = $cloudinary->uploadApi()->upload($request->file('thumbnail')->getRealPath(), [
-                    'folder' => 'eduide/thumbnails'
-                ]);
+                $upload = $this->cloudinary->upload($request->file('thumbnail')->getRealPath(), ['folder' => 'eduide/thumbnails']);
                 $thumbnailUrl = $upload['secure_url'] ?? $upload['url'] ?? null;
             }
 
@@ -80,119 +118,105 @@ class AdminController extends Controller
                 'author_id'    => auth()->id(),
                 'category_id'  => $request->category_id,
                 'title'        => $request->title,
-                'slug'         => Str::slug($request->title),
+                'slug'         => Str::slug($request->title) . '-' . strtolower(Str::random(5)),
                 'description'  => $request->description,
                 'price'        => $request->price,
                 'level'        => $request->level,
                 'thumbnail'    => $thumbnailUrl,
-                'is_published' => $request->has('is_published'),
+                'is_published' => $request->boolean('is_published'),
             ]);
 
-            AuditLog::create([
-                'admin_id' => auth()->id(),
-                'action' => 'create_course',
-                'target_type' => 'course',
-                'target_id' => $course->id,
-                'details' => json_encode(['title' => $course->title]),
-            ]);
-
+            // AuditLog handled by Observer
             return redirect()->route('admin.dashboard')->with('success', 'Kursus baru berhasil diterbitkan!');
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['thumbnail' => 'Gagal: ' . $e->getMessage()]);
         }
     }
 
-    public function editCourse($id)
+    /**
+     * Form edit kursus.
+     *
+     * @param  int  $id  ID kursus yang akan diedit.
+     */
+    public function editCourse(int $id): \Illuminate\View\View
     {
         $course = Course::findOrFail($id);
         $categories = Category::all();
         return view('admin.course-form', compact('course', 'categories'));
     }
 
-    public function updateCourse(Request $request, $id)
+    /**
+     * Perbarui data kursus melalui form legacy AdminController.
+     *
+     * @param  UpdateCourseRequest  $request
+     * @param  int                  $id       ID kursus.
+     */
+    public function updateCourse(UpdateCourseRequest $request, $id)
     {
         $course = Course::findOrFail($id);
-
-        $request->validate([
-            'title'        => 'required|string|max:255',
-            'category_id'  => 'required|exists:categories,id',
-            'description'  => 'required',
-            'price'        => 'required|numeric|min:0',
-            'level'        => 'required|in:beginner,intermediate,advanced',
-            'thumbnail'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        ]);
 
         $data = [
             'category_id'  => $request->category_id,
             'title'        => $request->title,
-            'slug'         => Str::slug($request->title),
             'description'  => $request->description,
             'price'        => $request->price,
             'level'        => $request->level,
-            'is_published' => $request->has('is_published'),
+            'is_published' => $request->boolean('is_published'),
         ];
 
         try {
+            // Hanya update slug jika judul berubah, untuk menjaga URL tetap stabil
+            if ($course->title !== $request->title) {
+                $data['slug'] = Str::slug($request->title) . '-' . strtolower(Str::random(5));
+            }
+
             if ($request->hasFile('thumbnail')) {
-                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
-                $upload = $cloudinary->uploadApi()->upload($request->file('thumbnail')->getRealPath(), [
-                    'folder' => 'eduide/thumbnails'
-                ]);
+                $upload = $this->cloudinary->upload($request->file('thumbnail')->getRealPath(), ['folder' => 'eduide/thumbnails']);
                 $data['thumbnail'] = $upload['secure_url'] ?? $upload['url'] ?? null;
             }
 
             $course->update($data);
 
-            AuditLog::create([
-                'admin_id' => auth()->id(),
-                'action' => 'update_course',
-                'target_type' => 'course',
-                'target_id' => $course->id,
-                'details' => json_encode(['title' => $course->title]),
-            ]);
-
+            // AuditLog handled by Observer
             return redirect()->route('admin.dashboard')->with('success', 'Data kursus berhasil diperbarui!');
         } catch (\Exception $e) {
             return back()->withInput()->withErrors(['thumbnail' => 'Gagal Update: ' . $e->getMessage()]);
         }
     }
 
+    /**
+     * Menghapus kursus dan konten terkait melalui AdminController.
+     *
+     * @param  int  $id  ID kursus.
+     */
     public function deleteCourse($id)
     {
         $course = Course::findOrFail($id);
         $course->delete();
 
-        AuditLog::create([
-            'admin_id' => auth()->id(),
-            'action' => 'delete_course',
-            'target_type' => 'course',
-            'target_id' => $course->id,
-            'details' => json_encode(['title' => $course->title]),
-        ]);
-
+        // AuditLog handled by Observer
         return back()->with('success', 'Kursus telah dihapus.');
     }
 
-    // Toggle publish/unpublish
+    /**
+     * Toggle status publikasi kursus (publish <-> draft).
+     *
+     * @param  int  $id  ID kursus.
+     */
     public function togglePublish($id)
     {
         $course = Course::findOrFail($id);
         $course->is_published = !$course->is_published;
         $course->save();
 
-        AuditLog::create([
-            'admin_id' => auth()->id(),
-            'action' => $course->is_published ? 'publish_course' : 'unpublish_course',
-            'target_type' => 'course',
-            'target_id' => $course->id,
-            'details' => json_encode(['title' => $course->title, 'is_published' => $course->is_published]),
-        ]);
-
+        // AuditLog handled by Observer
         return back()->with('success', 'Status publikasi kursus telah diperbarui.');
     }
 
-    // Users list
-    public function users(Request $request)
+    /**
+     * Menampilkan daftar seluruh user dengan opsi pencarian.
+     */
+    public function users(Request $request): \Illuminate\View\View
     {
         $query = User::query();
         if ($request->filled('search')) {
@@ -203,26 +227,26 @@ class AdminController extends Controller
         return view('admin.users', compact('users'));
     }
 
-    // Toggle admin role
+    /**
+     * Mengubah status admin pada user tertentu (promote/demote).
+     *
+     * @param  int  $id  ID user.
+     */
     public function toggleUserAdmin($id)
     {
         $user = User::findOrFail($id);
         $user->is_admin = !$user->is_admin;
         $user->save();
 
-        AuditLog::create([
-            'admin_id' => auth()->id(),
-            'action' => $user->is_admin ? 'promote_user' : 'demote_user',
-            'target_type' => 'user',
-            'target_id' => $user->id,
-            'details' => json_encode(['email' => $user->email, 'is_admin' => $user->is_admin]),
-        ]);
-
+        // AuditLog handled by Observer
         return back()->with('success', 'Status admin user telah diperbarui.');
     }
 
-    // Reviews listing for moderation (separate view is optional)
-    public function reviews(Request $request)
+    /**
+     * Menampilkan daftar ulasan dengan opsi pencarian untuk moderasi.
+     * View yang digunakan tetap dashboard utama agar admin tidak berpindah konteks.
+     */
+    public function reviews(Request $request): \Illuminate\View\View
     {
         $query = Review::query();
         if ($request->filled('search')) {
@@ -230,12 +254,39 @@ class AdminController extends Controller
         }
 
         $reviews = $query->latest()->paginate(10)->withQueryString();
-        return view('admin.dashboard', compact('reviews'));
+
+        // Data tambahan yang dibutuhkan oleh view dashboard
+        $stats = [
+            ['label' => 'Total Siswa', 'value' => User::where('is_admin', false)->count(), 'color' => 'indigo'],
+            ['label' => 'Ulasan Masuk', 'value' => Review::count(), 'color' => 'cyan'],
+            ['label' => 'Kursus Aktif', 'value' => Course::count(), 'color' => 'purple'],
+        ];
+
+        $courses = Course::with('category')->withCount('students')->latest()->paginate(12)->withQueryString();
+
+        return view('admin.dashboard', compact('reviews', 'stats', 'courses'));
     }
 
-    // Export courses CSV
-    public function exportCourses()
+    /**
+     * Mengekspor data kursus ke file CSV untuk analisis atau backup ringan.
+     *
+     * File akan dikirim sebagai stream download sehingga tidak menambah file di server.
+     */
+    /**
+     * Mengekspor data kursus ke file CSV atau PDF.
+     */
+    public function exportCourses(Request $request)
     {
+        $format = $request->query('format', 'csv');
+
+        // Export PDF
+        if ($format === 'pdf') {
+            $courses = Course::with('category', 'author')->latest()->get();
+            $pdf = Pdf::loadView('admin.exports.courses-pdf', compact('courses'));
+            return $pdf->download('courses-export-' . date('YmdHis') . '.pdf');
+        }
+
+        // Default: Export CSV
         $filename = 'courses-export-' . date('YmdHis') . '.csv';
         $columns = ['id', 'title', 'slug', 'category', 'author', 'price', 'is_published', 'created_at'];
 
@@ -261,14 +312,6 @@ class AdminController extends Controller
             fclose($file);
         };
 
-        AuditLog::create([
-            'admin_id' => auth()->id(),
-            'action' => 'export_courses_csv',
-            'target_type' => 'course_export',
-            'target_id' => null,
-            'details' => json_encode(['filename' => $filename]),
-        ]);
-
         return response()->streamDownload($callback, $filename, [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
@@ -278,7 +321,7 @@ class AdminController extends Controller
     /**
      * Audit logs viewer for admins
      */
-    public function auditLogs(Request $request)
+    public function auditLogs(Request $request): \Illuminate\View\View
     {
         $query = AuditLog::with('admin');
 
