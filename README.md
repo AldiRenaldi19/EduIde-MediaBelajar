@@ -1,7 +1,7 @@
 # 🌌 EduIde — Future Learning Ecosystem
 
 <div align="center">
-  <img src="resources/images/welcome-hero.jpg" alt="EduIde Hero" width="100%" style="border-radius: 40px; margin-bottom: 20px;">
+  <img src="public/img/logo-eduide.png" alt="EduIde Hero" width="100%" style="border-radius: 40px; margin-bottom: 20px;">
   
   [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
   [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com)
@@ -86,6 +86,6 @@ Licensed under the [MIT License](LICENSE).
 ---
 
 <p align="center">
-  Built with ❤️ by <b>EduIde Engineering</b><br>
+  Built with ❤️ by Reyn <b>EduIde Engineering</b><br>
   <i>"Powering the future of education, one course at a time."</i>
 </p>
